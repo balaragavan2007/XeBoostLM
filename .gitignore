@@ -1,0 +1,27 @@
+# Build outputs
+build/
+build_linux/
+bin/
+*.exe
+*.dll
+*.obj
+*.lib
+*.pdb
+
+# Model weights & compilation artifacts
+local_models/*
+!local_models/.gitkeep
+cache/
+*.blob
+*.cl_cache
+
+# Python environment
+venv/
+__pycache__/
+*.pyc
+
+# IDE & Editor files
+.vs/
+*.sln
+*.vcxproj*
+.vscode/
