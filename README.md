@@ -29,7 +29,7 @@ XeBoostLM wasn't just pieced together—every subsystem was custom-engineered to
 
 XeBoostLM is heavily optimized for modern Intel architectures:
 
-- **NPU (Neural Processing Unit):** Intel Core Ultra (Series 1 & 2)
+- **NPU (Neural Processing Unit):** Intel Core Ultra (Series 1, 2, 3)
 - **iGPU / dGPU:** Intel Arc Graphics, Intel Iris Xe
 - **CPU:** Intel Core 11th Gen and newer (AVX2 / AVX-512)
 
