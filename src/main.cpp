@@ -324,19 +324,56 @@ int cmd_serve(int argc, char* argv[]) {
     return 0;
 }
 
-static const std::unordered_map<std::string, std::string> MODEL_CATALOG = {
-    {"qwen2.5-0.5b-int8", "OpenVINO/Qwen2.5-0.5B-Instruct-int8-ov"},
-    {"qwen2.5-1.5b-int8", "OpenVINO/Qwen2.5-1.5B-Instruct-int8-ov"},
-    {"qwen2.5-3b-int8",   "OpenVINO/Qwen2.5-3B-Instruct-int8-ov"},
-    {"phi-3-mini-int4",   "OpenVINO/Phi-3-mini-4k-instruct-int4-ov"}
+// Structured model entry for categorized display
+struct ModelInfo {
+    std::string alias;
+    std::string repo_id;
+    std::string family;
+    std::string version;
+    std::string quantization;
+};
+
+// Comprehensive categorized catalog
+static const std::vector<ModelInfo> MODEL_CATALOG = {
+    // Qwen Family
+    {"qwen2.5-0.5b-int8", "OpenVINO/Qwen2.5-0.5B-Instruct-int8-ov", "Qwen", "2.5 (0.5B)", "INT8"},
+    {"qwen2.5-1.5b-int8", "OpenVINO/Qwen2.5-1.5B-Instruct-int8-ov", "Qwen", "2.5 (1.5B)", "INT8"},
+    {"qwen2.5-3b-int8",   "OpenVINO/Qwen2.5-3B-Instruct-int8-ov",   "Qwen", "2.5 (3B)",   "INT8"},
+    {"qwen2.5-7b-int8",   "OpenVINO/Qwen2.5-7B-Instruct-int8-ov",   "Qwen", "2.5 (7B)",   "INT8"},
+    
+    // Phi Family
+    {"phi-3-mini-int4",   "OpenVINO/Phi-3-mini-4k-instruct-int4-ov", "Phi", "Phi-3 Mini", "INT4"},
+    {"phi-3-mini-int8",   "OpenVINO/Phi-3-mini-4k-instruct-int8-ov", "Phi", "Phi-3 Mini", "INT8"},
+    
+    // Llama Family
+    {"llama-3.2-1b-int8", "OpenVINO/Llama-3.2-1B-Instruct-int8-ov", "Llama", "3.2 (1B)", "INT8"},
+    {"llama-3.2-3b-int8", "OpenVINO/Llama-3.2-3B-Instruct-int8-ov", "Llama", "3.2 (3B)", "INT8"},
+    {"llama-3.1-8b-int8", "OpenVINO/Meta-Llama-3.1-8B-Instruct-int8-ov", "Llama", "3.1 (8B)", "INT8"},
+    
+    // Mistral Family
+    {"mistral-7b-int8",   "OpenVINO/Mistral-7B-Instruct-v0.3-int8-ov", "Mistral", "v0.3 (7B)", "INT8"},
+    
+    // Gemma Family
+    {"gemma-2-2b-int8",   "OpenVINO/gemma-2-2b-it-int8-ov", "Gemma", "Gemma 2 (2B)", "INT8"}
 };
 
 int cmd_pull(int argc, char* argv[]) {
     if (argc < 3) {
-        std::cerr << "Usage: xeboost pull <alias_or_hf_repo>\n";
-        std::cerr << "Available built-in aliases:\n";
-        for (const auto& [alias, repo] : MODEL_CATALOG) {
-            std::cerr << "  - " << alias << " (" << repo << ")\n";
+        std::cout << "Usage: xeboost pull <alias_or_hf_repo>\n\n";
+        std::cout << "Available Models by Family:\n";
+
+        // Group and print by family
+        std::vector<std::string> families = {"Qwen", "Phi", "Llama", "Mistral", "Gemma"};
+        for (const auto& fam : families) {
+            std::cout << "  [" << fam << "]\n";
+            for (const auto& m : MODEL_CATALOG) {
+                if (m.family == fam) {
+                    std::cout << "    - " << std::left << std::setw(20) << m.alias 
+                              << " | Version: " << std::setw(12) << m.version 
+                              << " | Quant: " << m.quantization << "\n";
+                }
+            }
+            std::cout << "\n";
         }
         return 1;
     }
@@ -345,10 +382,14 @@ int cmd_pull(int argc, char* argv[]) {
     std::string repo_id = input;
     std::string folder_name = input;
 
-    auto it = MODEL_CATALOG.find(input);
+    // Check if input matches an alias
+    auto it = std::find_if(MODEL_CATALOG.begin(), MODEL_CATALOG.end(), [&](const ModelInfo& m) {
+        return m.alias == input;
+    });
+
     if (it != MODEL_CATALOG.end()) {
-        repo_id = it->second;
-        folder_name = it->first;
+        repo_id = it->repo_id;
+        folder_name = it->alias;
     } else {
         size_t slash = folder_name.find_last_of('/');
         if (slash != std::string::npos) {
@@ -361,7 +402,6 @@ int cmd_pull(int argc, char* argv[]) {
 
     std::cout << "[XeBoost] Pulling " << repo_id << " into " << target_dir.string() << "...\n";
 
-    // Direct Windows python execution
     std::string py_cmd = "python -c \""
                          "from huggingface_hub import snapshot_download; "
                          "snapshot_download(repo_id='" + repo_id + "', "
@@ -370,8 +410,7 @@ int cmd_pull(int argc, char* argv[]) {
 
     int ret = std::system(py_cmd.c_str());
     if (ret != 0) {
-        std::cerr << "[XeBoost-ERROR] Download failed. Make sure 'huggingface_hub' is installed:\n";
-        std::cerr << "                pip install huggingface_hub\n";
+        std::cerr << "[XeBoost-ERROR] Download failed. Ensure 'huggingface_hub' is installed (`pip install huggingface_hub`).\n";
         return 1;
     }
 
