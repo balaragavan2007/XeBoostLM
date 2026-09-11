@@ -1,5 +1,5 @@
 <div align="center">
-  <h1> XeBoostLM</h1>
+  <h1> ⚡XeBoostLM</h1>
   <p><b>A high-performance, zero-bloat local AI inference engine built in pure C++ for Intel hardware.</b></p>
 
   [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-blue.svg)](#)
@@ -17,11 +17,11 @@
 
 XeBoostLM wasn't just pieced together—every subsystem was custom-engineered to solve the biggest pain points in local AI:
 
-- ⚡ **Bare-Metal C++ Core:** We stripped away the heavy Python wrappers to build a raw C++ pipeline using OpenVINO GenAI. The result? Maximum memory efficiency and fast execution.
-- 🧠 **Dynamic Hardware Routing (NPU/GPU/CPU):** We engineered a custom parser that reads model tags (like `:npu` or `:gpu`) to route neural network computations to your Intel Core Ultra NPU or Arc Graphics—bypassing the CPU when requested.
-- 💾 **Persistent Disk Caching:** OpenVINO models can suffer from graph compilation delays on startup. We engineered a persistent caching system that writes compilation blobs to disk, resulting in significantly faster warm starts on future loads.
-- 🌐 **Custom OpenAI-Compliant Server:** Instead of relying on external API frameworks, we built a multi-threaded REST API server using `httplib`. It features native Server-Sent Events (SSE) streaming and real-time telemetry (tokens/second) that plugs directly into UIs like Open WebUI.
-- 📥 **Integrated CLI Downloader:** Users shouldn't have to navigate Hugging Face to hunt down IR files. We built `xeboost pull`, an orchestrator that securely fetches, validates, and sets up OpenVINO models with a single command.
+- **Bare-Metal C++ Core:** We stripped away the heavy Python wrappers to build a raw C++ pipeline using OpenVINO GenAI. The result? Maximum memory efficiency and fast execution.
+- **Dynamic Hardware Routing (NPU/GPU/CPU):** We engineered a custom parser that reads model tags (like `:npu` or `:gpu`) to route neural network computations to your Intel Core Ultra NPU or Arc Graphics—bypassing the CPU when requested.
+- **Persistent Disk Caching:** OpenVINO models can suffer from graph compilation delays on startup. We engineered a persistent caching system that writes compilation blobs to disk, resulting in significantly faster warm starts on future loads.
+- **Custom OpenAI-Compliant Server:** Instead of relying on external API frameworks, we built a multi-threaded REST API server using `httplib`. It features native Server-Sent Events (SSE) streaming and real-time telemetry (tokens/second) that plugs directly into UIs like Open WebUI.
+- **Integrated CLI Downloader:** Users shouldn't have to navigate Hugging Face to hunt down IR files. We built `xeboost pull`, an orchestrator that securely fetches, validates, and sets up OpenVINO models with a single command.
 
 ---
 
