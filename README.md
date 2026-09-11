@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🚀 XeBoostLM</h1>
+  <h1> XeBoostLM</h1>
   <p><b>A high-performance, zero-bloat local AI inference engine built in pure C++ for Intel hardware.</b></p>
 
   [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-blue.svg)](#)
