@@ -48,14 +48,6 @@
     "targets": ["CPU", "GPU", "NPU", "HYBRID"]
   },
   {
-    "alias": "qwen2.5-coder-7b-int4",
-    "repo_id": "OpenVINO/Qwen2.5-Coder-7B-Instruct-int4-ov",
-    "family": "Coding (Qwen Coder)",
-    "version": "2.5 (7B)",
-    "quantization": "INT4",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
-  },
-  {
     "alias": "phi-3-mini-int4",
     "repo_id": "OpenVINO/Phi-3-mini-4k-instruct-int4-ov",
     "family": "Phi",
@@ -67,17 +59,9 @@
     "alias": "phi-3.5-mini-int4",
     "repo_id": "OpenVINO/Phi-3.5-mini-instruct-int4-ov",
     "family": "Phi",
-    "version": "Phi-3.5 Mini",
+    "version": "3.5 Mini",
     "quantization": "INT4",
     "targets": ["CPU", "GPU", "NPU", "HYBRID"]
-  },
-  {
-    "alias": "phi-4-int4",
-    "repo_id": "OpenVINO/phi-4-int4-ov",
-    "family": "Phi",
-    "version": "Phi-4 (14B)",
-    "quantization": "INT4",
-    "targets": ["CPU", "GPU", "HYBRID"]
   },
   {
     "alias": "llama-3.2-1b-int8",
@@ -112,28 +96,12 @@
     "targets": ["CPU", "GPU", "NPU", "HYBRID"]
   },
   {
-    "alias": "ministral-8b-int4",
-    "repo_id": "OpenVINO/Ministral-8B-Instruct-2410-int4-ov",
-    "family": "Mistral",
-    "version": "Ministral (8B)",
-    "quantization": "INT4",
-    "targets": ["CPU", "GPU", "HYBRID"]
-  },
-  {
     "alias": "gemma-2-2b-int8",
     "repo_id": "OpenVINO/gemma-2-2b-it-int8-ov",
     "family": "Gemma",
     "version": "Gemma 2 (2B)",
     "quantization": "INT8",
     "targets": ["CPU", "GPU", "NPU", "HYBRID"]
-  },
-  {
-    "alias": "gemma-2-9b-int4",
-    "repo_id": "OpenVINO/gemma-2-9b-it-int4-ov",
-    "family": "Gemma",
-    "version": "Gemma 2 (9B)",
-    "quantization": "INT4",
-    "targets": ["CPU", "GPU", "HYBRID"]
   },
   {
     "alias": "deepseek-r1-1.5b-int8",
@@ -152,35 +120,11 @@
     "targets": ["CPU", "GPU", "HYBRID"]
   },
   {
-    "alias": "deepseek-r1-llama-8b-int4",
-    "repo_id": "OpenVINO/DeepSeek-R1-Distill-Llama-8B-int4-ov",
-    "family": "Reasoning (DeepSeek R1)",
-    "version": "8B (Llama)",
-    "quantization": "INT4",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
-  },
-  {
     "alias": "smollm2-360m-int8",
-    "repo_id": "OpenVINO/SmolLM2-360M-Instruct-int8-ov",
+    "repo_id": "AIFunOver/SmolLM2-360M-Instruct-openvino-8bit",
     "family": "Ultra-Lightweight (SmolLM2)",
     "version": "360M",
     "quantization": "INT8",
     "targets": ["CPU", "GPU", "NPU", "HYBRID"]
-  },
-  {
-    "alias": "smollm2-1.7b-int8",
-    "repo_id": "OpenVINO/SmolLM2-1.7B-Instruct-int8-ov",
-    "family": "Ultra-Lightweight (SmolLM2)",
-    "version": "1.7B",
-    "quantization": "INT8",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
-  },
-  {
-    "alias": "qwen2-vl-7b-int4",
-    "repo_id": "OpenVINO/Qwen2-VL-7B-Instruct-int4-ov",
-    "family": "Vision (Qwen2-VL)",
-    "version": "7B",
-    "quantization": "INT4",
-    "targets": ["CPU", "GPU", "HYBRID"]
   }
 ]
