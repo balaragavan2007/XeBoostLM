@@ -1,0 +1,98 @@
+[
+  {
+    "alias": "qwen2.5-0.5b-int8",
+    "repo_id": "OpenVINO/Qwen2.5-0.5B-Instruct-int8-ov",
+    "family": "Qwen",
+    "version": "2.5 (0.5B)",
+    "quantization": "INT8",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "qwen2.5-1.5b-int8",
+    "repo_id": "OpenVINO/Qwen2.5-1.5B-Instruct-int8-ov",
+    "family": "Qwen",
+    "version": "2.5 (1.5B)",
+    "quantization": "INT8",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "qwen2.5-3b-int8",
+    "repo_id": "OpenVINO/Qwen2.5-3B-Instruct-int8-ov",
+    "family": "Qwen",
+    "version": "2.5 (3B)",
+    "quantization": "INT8",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "qwen2.5-7b-int8",
+    "repo_id": "OpenVINO/Qwen2.5-7B-Instruct-int8-ov",
+    "family": "Qwen",
+    "version": "2.5 (7B)",
+    "quantization": "INT8",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "qwen2.5-7b-int4",
+    "repo_id": "OpenVINO/Qwen2.5-7B-Instruct-int4-ov",
+    "family": "Qwen",
+    "version": "2.5 (7B)",
+    "quantization": "INT4",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "phi-3-mini-int4",
+    "repo_id": "OpenVINO/Phi-3-mini-4k-instruct-int4-ov",
+    "family": "Phi",
+    "version": "Phi-3 Mini",
+    "quantization": "INT4",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "phi-3.5-mini-int4",
+    "repo_id": "OpenVINO/Phi-3.5-mini-instruct-int4-ov",
+    "family": "Phi",
+    "version": "Phi-3.5 Mini",
+    "quantization": "INT4",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "llama-3.2-1b-int8",
+    "repo_id": "OpenVINO/Llama-3.2-1B-Instruct-int8-ov",
+    "family": "Llama",
+    "version": "3.2 (1B)",
+    "quantization": "INT8",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "llama-3.2-3b-int8",
+    "repo_id": "OpenVINO/Llama-3.2-3B-Instruct-int8-ov",
+    "family": "Llama",
+    "version": "3.2 (3B)",
+    "quantization": "INT8",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "llama-3.1-8b-int4",
+    "repo_id": "OpenVINO/Meta-Llama-3.1-8B-Instruct-int4-ov",
+    "family": "Llama",
+    "version": "3.1 (8B)",
+    "quantization": "INT4",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "mistral-7b-int4",
+    "repo_id": "OpenVINO/Mistral-7B-Instruct-v0.3-int4-ov",
+    "family": "Mistral",
+    "version": "v0.3 (7B)",
+    "quantization": "INT4",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "gemma-2-2b-int8",
+    "repo_id": "OpenVINO/gemma-2-2b-it-int8-ov",
+    "family": "Gemma",
+    "version": "Gemma 2 (2B)",
+    "quantization": "INT8",
+    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  }
+]
