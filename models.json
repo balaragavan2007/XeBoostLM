@@ -94,5 +94,45 @@
     "version": "Gemma 2 (2B)",
     "quantization": "INT8",
     "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+  },
+  {
+    "alias": "deepseek-r1-1.5b-int8",
+    "repo_id": "OpenVINO/DeepSeek-R1-Distill-Qwen-1.5B-int8-ov",
+    "family": "Reasoning (DeepSeek R1)",
+    "version": "1.5B",
+    "quantization": "INT8",
+    "hardware": "CPU, iGPU, NPU"
+  },
+  {
+    "alias": "deepseek-r1-7b-int8",
+    "repo_id": "OpenVINO/DeepSeek-R1-Distill-Qwen-7B-int8-ov",
+    "family": "Reasoning (DeepSeek R1)",
+    "version": "7B",
+    "quantization": "INT8",
+    "hardware": "CPU, iGPU"
+  },
+  {
+    "alias": "qwen2.5-coder-1.5b-int8",
+    "repo_id": "OpenVINO/Qwen2.5-Coder-1.5B-Instruct-int8-ov",
+    "family": "Coding (Qwen Coder)",
+    "version": "1.5B",
+    "quantization": "INT8",
+    "hardware": "CPU, iGPU, NPU"
+  },
+  {
+    "alias": "smollm2-360m-int8",
+    "repo_id": "OpenVINO/SmolLM2-360M-Instruct-int8-ov",
+    "family": "Ultra-Lightweight (SmolLM2)",
+    "version": "360M",
+    "quantization": "INT8",
+    "hardware": "CPU, iGPU, NPU"
+  },
+  {
+    "alias": "qwen2.5-0.5b-int8",
+    "repo_id": "OpenVINO/Qwen2.5-0.5B-Instruct-int8-ov",
+    "family": "General (Qwen 2.5)",
+    "version": "0.5B",
+    "quantization": "INT8",
+    "hardware": "CPU, iGPU, NPU"
   }
 ]
