@@ -25,7 +25,7 @@
 | Target | Architecture / Driver | Best For | Quantization Support |
 | :--- | :--- | :--- | :--- |
 | **NPU** | Intel® AI Boost (Meteor Lake / Lunar Lake / Panther Lake / Arrow Lake / Wildcat Lake) | Ultra-low-power background execution | INT8, INT4 |
-| **GPU** | Intel® Arc™ Graphics & Iris® Xe iGPU | High-throughput interactive chat | INT4, INT8, FP16 |
+| **GPU** | Intel® Arc™ Graphics, Iris® Xe & UHD Graphics iGPU | High-throughput interactive chat | INT4, INT8, FP16 |
 | **CPU** | Intel® Core™ / Xeon® (AVX2, AVX-512, AMX) | Larger parameter models & fallback | INT4, INT8, FP16 |
 | **HYBRID** | Auto heterogeneous pipelining | Balanced throughput and host responsiveness | INT8 |
 
