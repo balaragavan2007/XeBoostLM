@@ -8,8 +8,8 @@
 #include <urlmon.h>
 #include <fstream>
 #pragma comment(lib, "urlmon.lib")
-
-#include <chrono>
+#include <openvino/genai/llm_pipeline.hpp>
+#include <openvino/openvino.hpp>
 
 #include <windows.h>
 #pragma comment(lib, "ws2_32.lib")
@@ -24,6 +24,7 @@
 #include <filesystem>
 #include <chrono>
 #include <cstdlib>
+#include <functional> // <--- Added this to fix the streamer error
 
 #include "inference_engine.hpp"
 #include "httplib.h"
@@ -54,7 +55,7 @@ void print_usage() {
               << "  benchmark <model>                  Benchmark model across CPU, GPU, NPU\n";
 }
 
-int cmd_list() {
+int cmd_list(int argc, char* argv[]) {
     std::string base_dir = "local_models";
     if (!fs::exists(base_dir) || !fs::is_directory(base_dir)) {
         std::cout << "No models found in ./local_models\n";
@@ -498,28 +499,249 @@ int cmd_benchmark(int argc, char* argv[]) {
     return 0;
 }
 
-int main(int argc, char* argv[]) {
-    init_terminal();
+void print_help() {
+    std::cout << "=========================================================\n";
+    std::cout << " XeBoostLM - High-Performance Local AI Inference Engine\n";
+    std::cout << "=========================================================\n\n";
+    std::cout << "Usage: xeboost <command> [options]\n\n";
+    
+    std::cout << "Core Commands:\n";
+    std::cout << "  pull <model>     Download and verify a model from Hugging Face\n";
+    std::cout << "                   (e.g., xeboost pull smollm2-360m-int8)\n";
+    std::cout << "  list             Display the categorized catalog of supported models\n";
+    std::cout << "  benchmark <m>    Run hardware performance tests on CPU, iGPU, and NPU\n";
+    std::cout << "  serve            Start the OpenAI-compatible REST API server\n\n";
+    
+    std::cout << "Utilities:\n";
+    std::cout << "  help             Show this help message (also: -h, --help)\n\n";
+    
+    std::cout << "Coming Soon:\n";
+    std::cout << "  chat <model>     Start an interactive CLI chat session\n";
+    std::cout << "  remove <model>   Delete a local model to free up disk space\n";
+    std::cout << "  update           Force-update the models.json catalog from GitHub\n";
+    std::cout << "  info             Show system hardware and OpenVINO runtime status\n";
+    std::cout << "=========================================================\n";
+}
 
-    if (argc < 2) {
-        print_usage();
+int cmd_chat(int argc, char* argv[]) {
+    if (argc < 3) {
+        std::cout << "Usage: xeboost chat <model_name> [device]\n";
+        std::cout << "Example: xeboost chat smollm2-360m-int8 gpu\n";
         return 1;
     }
 
-    std::string cmd = argv[1];
-    if (cmd == "serve") {
-        return cmd_serve(argc, argv);
-    } else if (cmd == "run") {
-        return cmd_run(argc, argv);
-    } else if (cmd == "pull") {
+    std::string model_name = argv[2];
+    std::string device = "CPU"; 
+    if (argc >= 4) {
+        device = argv[3];
+        // Convert to uppercase (cpu -> CPU)
+        for (auto &c : device) c = toupper(c);
+    }
+
+    std::string model_path = "local_models/" + model_name;
+    if (!fs::exists(model_path + "/openvino_model.xml")) {
+        std::cerr << "[Error] Model not found locally. Run 'xeboost pull " << model_name << "' first.\n";
+        return 1;
+    }
+
+    std::cout << "[XeBoost] Loading " << model_name << " into " << device << "...\n";
+    
+    // Set up the config exactly like your REST API does
+    GenerationConfig gen_config;
+    gen_config.max_new_tokens = 1024;
+    gen_config.do_sample = true;
+    gen_config.temperature = 0.7f;
+    gen_config.stop_strings.push_back("<|im_end|>");
+    gen_config.stop_strings.push_back("<|endoftext|>");
+
+    std::cout << "=========================================================\n";
+    std::cout << " Chat Session Started (Type '/bye' or 'exit' to quit)\n";
+    std::cout << "=========================================================\n";
+
+    // We will manually build the history to bypass OpenVINO's deprecated Chat API
+    std::string conversation_history = "";
+
+    while (true) {
+        std::string prompt;
+        std::cout << "\n\n>>> You: ";
+        std::getline(std::cin, prompt);
+
+        if (prompt == "/bye" || prompt == "exit" || prompt == "quit") {
+            break;
+        }
+        if (prompt.empty()) continue;
+
+        // Append the user's turn using standard ChatML formatting
+        conversation_history += "<|im_start|>user\n" + prompt + "<|im_end|>\n<|im_start|>assistant\n";
+        
+        std::cout << ">>> XeBoost: ";
+        
+        // Simple callback that matches what inference_engine.hpp expects
+        auto streamer = [](std::string word) {
+            std::cout << word << std::flush;
+        };
+
+        try {
+            // Route the generation through your perfectly working custom backend
+            ServerResponse response = generate_server_response(model_path, device, conversation_history, gen_config, streamer);
+            
+            // Append the generated text to the history for the next turn
+            conversation_history += response.text + "<|im_end|>\n";
+        } catch (const std::exception& e) {
+            std::cerr << "\n[Error] Generation failed: " << e.what() << "\n";
+            break;
+        }
+    }
+
+    std::cout << "\n\n[XeBoost] Chat session ended. Goodbye!\n";
+    return 0;
+}
+
+int cmd_remove(int argc, char* argv[]) {
+    if (argc < 3) {
+        std::cout << "Usage: xeboost remove <model_name>\n";
+        std::cout << "Example: xeboost remove smollm2-360m-int8\n";
+        return 1;
+    }
+
+    std::string model_name = argv[2];
+    fs::path target_dir = fs::path("local_models") / model_name;
+
+    if (!fs::exists(target_dir)) {
+        std::cerr << "[Error] Model '" << model_name << "' not found in local_models/.\n";
+        return 1;
+    }
+
+    try {
+        std::cout << "[XeBoost] Deleting model '" << model_name << "'...\n";
+        
+        // C++17 recursive deletion returns the number of files/directories removed
+        std::uintmax_t deleted_items = fs::remove_all(target_dir);
+        
+        std::cout << "[XeBoost] Successfully removed " << deleted_items 
+                  << " files/directories. Disk space reclaimed!\n";
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "\n[Error] Failed to remove model: " << e.what() << "\n";
+        std::cerr << "Hint: Ensure the model is not currently being used by the 'serve' or 'chat' commands.\n";
+        return 1;
+    }
+
+    return 0;
+}
+
+int cmd_update(int argc, char* argv[]) {
+    std::cout << "[XeBoost] Forcing catalog update...\n";
+    fs::path cache_file = fs::path("cache") / "models.json";
+    
+    try {
+        // 1. Delete the existing cache file if it exists
+        if (fs::exists(cache_file)) {
+            fs::remove(cache_file);
+        }
+        
+        // 2. Call the loader, which will now see the cache is missing 
+        // and fetch a fresh copy directly from GitHub.
+        load_model_catalog();
+        
+        std::cout << "[XeBoost] Catalog successfully updated from GitHub!\n";
+    } catch (const std::exception& e) {
+        std::cerr << "[Error] Failed to update catalog: " << e.what() << "\n";
+        return 1;
+    }
+    
+    return 0;
+}
+
+int cmd_info(int argc, char* argv[]) {
+    std::cout << "=========================================================\n";
+    std::cout << " XeBoostLM System Information\n";
+    std::cout << "=========================================================\n";
+
+    // 1. Query System RAM (Windows API)
+    MEMORYSTATUSEX memInfo;
+    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+    if (GlobalMemoryStatusEx(&memInfo)) {
+        double totalRamGB = memInfo.ullTotalPhys / (1024.0 * 1024.0 * 1024.0);
+        double availRamGB = memInfo.ullAvailPhys / (1024.0 * 1024.0 * 1024.0);
+        
+        std::cout << "[System Memory]\n";
+        std::cout << "  Total RAM : " << std::fixed << std::setprecision(1) << totalRamGB << " GB\n";
+        std::cout << "  Available : " << std::fixed << std::setprecision(1) << availRamGB << " GB\n\n";
+    }
+
+    // 2. Query OpenVINO Hardware Devices
+    std::cout << "[OpenVINO Hardware Targets]\n";
+    try {
+        ov::Core core;
+        // Retrieves all compatible compute devices (CPU, GPU.0, GPU.1, NPU)
+        std::vector<std::string> devices = core.get_available_devices();
+        
+        if (devices.empty()) {
+            std::cout << "  No OpenVINO compatible devices found.\n";
+        } else {
+            for (const auto& device : devices) {
+                std::string device_name = "Unknown";
+                try {
+                    // Extract the human-readable product name from the driver
+                    device_name = core.get_property(device, ov::device::full_name);
+                } catch (...) {
+                    device_name = "Name not available";
+                }
+                std::cout << "  " << std::left << std::setw(8) << device << ": " << device_name << "\n";
+            }
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "  [Error] Failed to initialize OpenVINO Core: " << e.what() << "\n";
+    }
+
+    std::cout << "=========================================================\n";
+    return 0;
+}
+
+int main(int argc, char* argv[]) {
+    // 1. If the user just types "xeboost", show help
+    if (argc < 2) {
+        print_help();
+        return 0;
+    }
+
+    std::string command = argv[1];
+
+    // 2. Intercept help flags explicitly
+    if (command == "help" || command == "-h" || command == "--help") {
+        print_help();
+        return 0;
+    } 
+    // 3. Route to existing commands
+    else if (command == "pull") {
         return cmd_pull(argc, argv);
-    } else if (cmd == "list") {
-        return cmd_list();
-    } else if (cmd == "benchmark" || cmd == "bench") {
+    } 
+    else if (command == "list") {
+        return cmd_list(argc, argv);
+    } 
+    else if (command == "benchmark") {
         return cmd_benchmark(argc, argv);
-    } else {
-        std::cerr << "Unknown command: " << cmd << "\n";
-        print_usage();
+    } 
+    else if (command == "chat") {
+        return cmd_chat(argc, argv);
+    } 
+    else if (command == "remove") {
+        return cmd_remove(argc, argv);
+    }
+    else if (command == "update") {
+        return cmd_update(argc, argv);
+    }
+    else if (command == "info") {
+        return cmd_info(argc, argv);
+    }
+    else if (command == "serve") {
+        return cmd_serve(argc, argv);
+    }
+
+    // 4. Catch typos and invalid commands gracefully
+    else {
+        std::cerr << "[Error] Unknown command: '" << command << "'\n\n";
+        print_help();
         return 1;
     }
 }
