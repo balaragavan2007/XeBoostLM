@@ -5,6 +5,12 @@
 #define NOMINMAX
 #endif
 
+#include <urlmon.h>
+#include <fstream>
+#pragma comment(lib, "urlmon.lib")
+
+#include <chrono>
+
 #include <windows.h>
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "crypt32.lib")
@@ -331,46 +337,99 @@ struct ModelInfo {
     std::string family;
     std::string version;
     std::string quantization;
+    std::vector<std::string> targets;
 };
 
-// Comprehensive categorized catalog
-static const std::vector<ModelInfo> MODEL_CATALOG = {
-    // Qwen Family
-    {"qwen2.5-0.5b-int8", "OpenVINO/Qwen2.5-0.5B-Instruct-int8-ov", "Qwen", "2.5 (0.5B)", "INT8"},
-    {"qwen2.5-1.5b-int8", "OpenVINO/Qwen2.5-1.5B-Instruct-int8-ov", "Qwen", "2.5 (1.5B)", "INT8"},
-    {"qwen2.5-3b-int8",   "OpenVINO/Qwen2.5-3B-Instruct-int8-ov",   "Qwen", "2.5 (3B)",   "INT8"},
-    {"qwen2.5-7b-int8",   "OpenVINO/Qwen2.5-7B-Instruct-int8-ov",   "Qwen", "2.5 (7B)",   "INT8"},
+std::vector<ModelInfo> load_model_catalog() {
+    std::string remote_url = "https://raw.githubusercontent.com/balaragavan2007/XeBoostLM/main/models.json";
+    std::string cache_path = "cache/models.json";
     
-    // Phi Family
-    {"phi-3-mini-int4",   "OpenVINO/Phi-3-mini-4k-instruct-int4-ov", "Phi", "Phi-3 Mini", "INT4"},
-    {"phi-3-mini-int8",   "OpenVINO/Phi-3-mini-4k-instruct-int8-ov", "Phi", "Phi-3 Mini", "INT8"},
-    
-    // Llama Family
-    {"llama-3.2-1b-int8", "OpenVINO/Llama-3.2-1B-Instruct-int8-ov", "Llama", "3.2 (1B)", "INT8"},
-    {"llama-3.2-3b-int8", "OpenVINO/Llama-3.2-3B-Instruct-int8-ov", "Llama", "3.2 (3B)", "INT8"},
-    {"llama-3.1-8b-int8", "OpenVINO/Meta-Llama-3.1-8B-Instruct-int8-ov", "Llama", "3.1 (8B)", "INT8"},
-    
-    // Mistral Family
-    {"mistral-7b-int8",   "OpenVINO/Mistral-7B-Instruct-v0.3-int8-ov", "Mistral", "v0.3 (7B)", "INT8"},
-    
-    // Gemma Family
-    {"gemma-2-2b-int8",   "OpenVINO/gemma-2-2b-it-int8-ov", "Gemma", "Gemma 2 (2B)", "INT8"}
-};
+    fs::create_directories("cache");
+
+    bool needs_download = true;
+
+    // 1. Check if cache exists and was downloaded recently
+    if (fs::exists(cache_path)) {
+        auto last_write = fs::last_write_time(cache_path);
+        // Safely get the exact clock C++17 filesystem is using
+        auto now = decltype(last_write)::clock::now(); 
+        auto diff_hours = std::chrono::duration_cast<std::chrono::hours>(now - last_write).count();
+        
+        // If the file is less than 24 hours old, skip the GitHub request
+        if (diff_hours < 24) {
+            needs_download = false;
+        }
+    }
+
+    // 2. Fetch from GitHub only if missing or older than 24 hours
+    if (needs_download) {
+        HRESULT hr = URLDownloadToFileA(NULL, remote_url.c_str(), cache_path.c_str(), 0, NULL);
+        
+        // FAILSAFE: If offline and no cache exists, use the baseline
+        if (FAILED(hr) && !fs::exists(cache_path)) {
+            std::cerr << "[Warning] Unable to fetch remote catalog. Using offline baseline catalog.\n\n";
+            return {
+                {"qwen2.5-0.5b-int8", "OpenVINO/Qwen2.5-0.5B-Instruct-int8-ov", "General (Qwen 2.5)", "0.5B", "INT8", {"CPU", "GPU", "NPU", "HYBRID"}},
+                {"phi-3-mini-int4",   "OpenVINO/Phi-3-mini-4k-instruct-int4-ov", "Compact (Microsoft Phi)", "3 Mini", "INT4", {"CPU", "GPU", "HYBRID"}}
+                // (Keep the rest of your hardcoded fallback models here)
+            };
+        }
+    }
+
+    // 3. Parse the local cache file
+    std::vector<ModelInfo> catalog;
+    try {
+        std::ifstream f(cache_path);
+        json j = json::parse(f);
+
+        for (const auto& item : j) {
+            ModelInfo m;
+            m.alias = item.value("alias", "");
+            m.repo_id = item.value("repo_id", "");
+            m.family = item.value("family", "Other");
+            m.version = item.value("version", "");
+            m.quantization = item.value("quantization", "");
+            if (item.contains("targets") && item["targets"].is_array()) {
+                m.targets = item["targets"].get<std::vector<std::string>>();
+            } else {
+                m.targets = {"CPU", "GPU"};
+            }
+            catalog.push_back(m);
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "[Error] Parsing models.json failed: " << e.what() << "\n";
+    }
+
+    return catalog;
+}
 
 int cmd_pull(int argc, char* argv[]) {
+    auto catalog = load_model_catalog();
+
     if (argc < 3) {
         std::cout << "Usage: xeboost pull <alias_or_hf_repo>\n\n";
         std::cout << "Available Models by Family:\n";
 
-        // Group and print by family
-        std::vector<std::string> families = {"Qwen", "Phi", "Llama", "Mistral", "Gemma"};
+        // Collect unique families dynamically
+        std::vector<std::string> families;
+        for (const auto& m : catalog) {
+            if (std::find(families.begin(), families.end(), m.family) == families.end()) {
+                families.push_back(m.family);
+            }
+        }
+
         for (const auto& fam : families) {
             std::cout << "  [" << fam << "]\n";
-            for (const auto& m : MODEL_CATALOG) {
+            for (const auto& m : catalog) {
                 if (m.family == fam) {
-                    std::cout << "    - " << std::left << std::setw(20) << m.alias 
-                              << " | Version: " << std::setw(12) << m.version 
-                              << " | Quant: " << m.quantization << "\n";
+                    std::cout << "    - " << std::left << std::setw(22) << m.alias 
+                              << " | Version: " << std::setw(14) << m.version 
+                              << " | Quant: " << std::setw(6) << m.quantization
+                              << " | Hardware: ";
+                    for (size_t i = 0; i < m.targets.size(); ++i) {
+                        std::cout << m.targets[i] << (i + 1 < m.targets.size() ? ", " : "");
+                    }
+                    std::cout << "\n";
                 }
             }
             std::cout << "\n";
@@ -382,12 +441,11 @@ int cmd_pull(int argc, char* argv[]) {
     std::string repo_id = input;
     std::string folder_name = input;
 
-    // Check if input matches an alias
-    auto it = std::find_if(MODEL_CATALOG.begin(), MODEL_CATALOG.end(), [&](const ModelInfo& m) {
+    auto it = std::find_if(catalog.begin(), catalog.end(), [&](const ModelInfo& m) {
         return m.alias == input;
     });
 
-    if (it != MODEL_CATALOG.end()) {
+    if (it != catalog.end()) {
         repo_id = it->repo_id;
         folder_name = it->alias;
     } else {
@@ -410,7 +468,7 @@ int cmd_pull(int argc, char* argv[]) {
 
     int ret = std::system(py_cmd.c_str());
     if (ret != 0) {
-        std::cerr << "[XeBoost-ERROR] Download failed. Ensure 'huggingface_hub' is installed (`pip install huggingface_hub`).\n";
+        std::cerr << "[XeBoost-ERROR] Download failed. Make sure 'huggingface_hub' is installed (`pip install huggingface_hub`).\n";
         return 1;
     }
 

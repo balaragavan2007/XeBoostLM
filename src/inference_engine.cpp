@@ -95,7 +95,15 @@ void run_benchmark(const std::string& model_dir) {
                       << std::fixed << std::setprecision(2) << tps << "\n";
 
         } catch (const std::exception& e) {
-            std::cout << std::left << std::setw(10) << device << "FAILED: " << e.what() << "\n";
+            std::string err = e.what();
+            if (err.find("OUT_OF_HOST_MEMORY") != std::string::npos || 
+                err.find("0x70000002") != std::string::npos) {
+                std::cout << std::left << std::setw(10) << device 
+                          << "EXCEEDED VRAM / HOST MEMORY (Requires INT4 or <=3B)\n";
+            } else {
+                std::cout << std::left << std::setw(10) << device 
+                          << "FAILED: " << err << "\n";
+            }
         }
     }
     std::cout << "=========================================================\n\n";
