@@ -5,7 +5,7 @@
     "family": "Qwen",
     "version": "2.5 (1.5B)",
     "quantization": "INT8",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+    "targets": ["CPU", "GPU", "NPU"]
   },
   {
     "alias": "qwen2.5-7b-int8",
@@ -13,7 +13,7 @@
     "family": "Qwen",
     "version": "2.5 (7B)",
     "quantization": "INT8",
-    "targets": ["CPU", "GPU", "HYBRID"]
+    "targets": ["CPU", "GPU"]
   },
   {
     "alias": "qwen2.5-7b-int4",
@@ -21,7 +21,7 @@
     "family": "Qwen",
     "version": "2.5 (7B)",
     "quantization": "INT4",
-    "targets": ["CPU", "GPU", "HYBRID"]
+    "targets": ["CPU", "GPU"]
   },
   {
     "alias": "qwen2.5-coder-0.5b-int4",
@@ -29,7 +29,7 @@
     "family": "Coding (Qwen Coder)",
     "version": "0.5B",
     "quantization": "INT4",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+    "targets": ["CPU", "GPU"]
   },
   {
     "alias": "qwen2.5-coder-1.5b-int8",
@@ -37,7 +37,7 @@
     "family": "Coding (Qwen Coder)",
     "version": "1.5B",
     "quantization": "INT8",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+    "targets": ["CPU", "GPU", "NPU"]
   },
   {
     "alias": "qwen2.5-coder-3b-int4",
@@ -45,7 +45,7 @@
     "family": "Coding (Qwen Coder)",
     "version": "3B",
     "quantization": "INT4",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+    "targets": ["CPU", "GPU"]
   },
   {
     "alias": "phi-3-mini-int4",
@@ -53,7 +53,7 @@
     "family": "Phi",
     "version": "Phi-3 Mini",
     "quantization": "INT4",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+    "targets": ["CPU", "GPU"]
   },
   {
     "alias": "phi-3.5-mini-int4",
@@ -61,7 +61,7 @@
     "family": "Phi",
     "version": "3.5 Mini",
     "quantization": "INT4",
-    "targets": ["CPU", "GPU", "HYBRID"]
+    "targets": ["CPU", "GPU"]
   },
   {
     "alias": "llama-3.2-1b-int4",
@@ -69,7 +69,7 @@
     "family": "Llama",
     "version": "3.2 (1B)",
     "quantization": "INT4",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+    "targets": ["CPU", "GPU"]
   },
   {
     "alias": "llama-3.2-3b-fp16",
@@ -77,7 +77,7 @@
     "family": "Llama",
     "version": "3.2 (3B)",
     "quantization": "FP16",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+    "targets": ["CPU", "GPU", "NPU"]
   },
   {
     "alias": "mistral-7b-int4",
@@ -85,7 +85,7 @@
     "family": "Mistral",
     "version": "v0.3 (7B)",
     "quantization": "INT4",
-    "targets": ["CPU", "GPU", "HYBRID"]
+    "targets": ["CPU", "GPU"]
   },
   {
     "alias": "gemma-2-2b-int4",
@@ -93,7 +93,7 @@
     "family": "Gemma",
     "version": "Gemma 2 (2B)",
     "quantization": "INT4",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+    "targets": ["CPU", "GPU"]
   },
   {
     "alias": "deepseek-r1-1.5b-int8",
@@ -101,7 +101,7 @@
     "family": "Reasoning (DeepSeek R1)",
     "version": "1.5B",
     "quantization": "INT8",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+    "targets": ["CPU", "GPU", "NPU"]
   },
   {
     "alias": "deepseek-r1-7b-int8",
@@ -109,7 +109,7 @@
     "family": "Reasoning (DeepSeek R1)",
     "version": "7B",
     "quantization": "INT8",
-    "targets": ["CPU", "GPU", "HYBRID"]
+    "targets": ["CPU", "GPU"]
   },
   {
     "alias": "smollm2-360m-int8",
@@ -117,6 +117,6 @@
     "family": "Ultra-Lightweight (SmolLM2)",
     "version": "360M",
     "quantization": "INT8",
-    "targets": ["CPU", "GPU", "NPU", "HYBRID"]
+    "targets": ["CPU", "GPU", "NPU"]
   }
 ]
